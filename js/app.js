@@ -31,7 +31,7 @@ var showQuestion = function(question) {
     return result;
 };
 
-var showAnswers = function(question) {
+var showAnswers = function(answer) {
 
     // clone our result template code
     var result = $('.templates .answers').clone();
@@ -41,14 +41,10 @@ var showAnswers = function(question) {
     answersElem.attr('href', answers.link);
     answersElem.text(answers.title);
 
-    // set the date asked property in result
-    var asked = result.find('.asked-date');
-    var date = new Date(1000 * answers.creation_date);
-    asked.text(date.toString());
-
-
 
     return result;
+   
+
 };
 
 
@@ -104,17 +100,16 @@ var getUnanswered = function(tags) {
 var getAnswerers = function(tags) {
     //parameters for answerers tags
     var answers = {
-        items: [],
+        tag: top-answerers,
         site: 'stackoverflow',
-        order: 'desc',
-        sort: 'creation'
+        period: month
     };
 };
 
 
 $.ajax({
     url: "http://api.stackexchange.com/2.2/tags/top-answerers{last30days}/top-answerers/month?site=stackoverflow",
-    data: answers,
+    data: answers, //keep getting undefined
     dataType: "jsonp",
     type: "GET",
 
@@ -130,7 +125,7 @@ $.ajax({
     });
 
 })
-debugger;
+
 
 
 
@@ -155,5 +150,6 @@ $(document).ready(function() {
 
 
             })
+ })
 
 

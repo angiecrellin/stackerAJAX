@@ -31,7 +31,7 @@ var showQuestion = function(question) {
     return result;
 };
 
-var showAnswers = function(answer) {
+var showAnswers = function(answers) {
 
     // clone our result template code
     var result = $('.templates .answers').clone();
@@ -43,7 +43,23 @@ var showAnswers = function(answer) {
 
 
     return result;
-   
+
+
+};
+
+var showUsers = function(users) {
+
+    // clone our result template code
+    var result = $('.templates .users').clone();
+
+    // Set the answer properties in result
+   result.find('.displayName').text(users.user.display_name);
+    
+   result.find('.postCount').text(users.post_count);
+   result.find('.score').text(users.score);
+
+    return result;
+
 
 };
 
@@ -100,56 +116,57 @@ var getUnanswered = function(tags) {
 var getAnswerers = function(tags) {
     //parameters for answerers tags
     var answers = {
-        tag: top-answerers,
+        tag: tags,
         site: 'stackoverflow',
-        period: month
+        period: 'month'
     };
-};
+    var url = "http://api.stackexchange.com/2.2/tags/{tag}/top-answerers/{period}?site={site}"
+        .replace('{tag}', answers.tag)
+        .replace('{period}', answers.period)
+        .replace('{site}', answers.site)
 
+    $.ajax({
+        url: url,
+        dataType: "jsonp",
+        type: "GET",
 
-$.ajax({
-    url: "http://api.stackexchange.com/2.2/tags/top-answerers{last30days}/top-answerers/month?site=stackoverflow",
-    data: answers, //keep getting undefined
-    dataType: "jsonp",
-    type: "GET",
+    })
 
-})
+    .done(function(results) {
+        searchResults = showSearchResults(answers.tag, results.items.length);
 
-.done(function(results) {
-    searchResults = showSearchResults(answers.tagged, answers.length);
-
-    $('search-results').html(searchResults);
-    $.each(answers.items, function(i, item) {
-        var answers = showAnswers(item);
-        $('.results').append(answers);
+        $('.search-results').html(searchResults);
+        $.each(results.items, function(i, item) {
+    
+            var answers = showUsers(item);
+            $('.results').append(answers);
+        });
     });
+}
 
-})
 
 
 
 
 
 $(document).ready(function() {
-            $('.unanswered-getter').submit(function(e) {
-                e.preventDefault();
-                // zero out results if previous search has run
-                $('.results').html('');
-                // get the value of the tags the user submitted
-                var tags = $(this).find("input[name='tags']").val();
-                getUnanswered(tags);
-            });
+    $('.unanswered-getter').submit(function(e) {
+        e.preventDefault();
+        // zero out results if previous search has run
+        $('.results').html('');
+        // get the value of the tags the user submitted
+        var tags = $(this).find("input[name='tags']").val();
+        getUnanswered(tags);
+    });
 
-            $(document).ready(function() {
-                $('.inspiration-getter').submit(function(e) {
-                    e.preventDefault();
-                 	  $('.results').html('');
-                    var tags = $(this).find("input[name='answerers']").val();
-                    getUnanswered(tags);
-                });
-
-
-            })
- })
+    $(document).ready(function() {
+        $('.inspiration-getter').submit(function(e) {
+            e.preventDefault();
+            $('.results').html('');
+            var tags = $(this).find("input[name='answerers']").val();
+            getAnswerers(tags);
+        });
 
 
+    })
+})
